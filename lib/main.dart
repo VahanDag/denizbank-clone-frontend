@@ -8,10 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() => runApp(MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AuthCubit(AuthStatus.unauthenticated),
+          create: (context) => AuthCubit(AuthStatus.authenticated),
         ),
         BlocProvider(
-          create: (context) => RoutersCubit(false),
+          create: (context) => RoutersCubit(true),
         )
       ],
       child: const MyApp(),
@@ -27,11 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(useMaterial3: true),
       home: BlocBuilder<AuthCubit, AuthStatus>(
         builder: (context, state) {
-          if (state == AuthStatus.authenticated) {
-            return const Text("HOME");
-          } else {
-            return const BottomNavBar(); // Bu widget zaten bir Scaffold içeriyor.
-          }
+          return const BottomNavBar();
         },
       ),
     );

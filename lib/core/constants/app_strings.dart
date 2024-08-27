@@ -18,4 +18,9 @@ mixin AppStrings {
   static const String forgotPassword = "Şifremi Unuttum";
   static const String password = "Parola";
   static const String pleaseEnter = "Giriniz";
+  static const String accounts = "Hesaplar";
+  static const String cards = "Kartlar";
+  static const String financialSummary = "Finansal Özet";
+  static const String availableBalance = "Kullanılabilir Bakiye";
+  static const String sendMoney2line = "Para \nGönder";
 }

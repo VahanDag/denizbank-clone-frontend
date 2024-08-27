@@ -1,6 +1,7 @@
 import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/screens/applications/applications.dart';
 import 'package:denizbank_clone/screens/fast/fast_transactions.dart';
+import 'package:denizbank_clone/screens/home.dart';
 import 'package:denizbank_clone/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,7 @@ part 'routers_state.dart';
 class RoutersCubit extends Cubit<RoutersState> {
   RoutersCubit(this.isAuth) : super(RoutersInitial()) {
     pages = [
-      isAuth ? const Text(AppStrings.home) : const FastTransactionsScreen(),
+      isAuth ? const HomeScreen() : const FastTransactionsScreen(),
       const Applications(),
       const Text(AppStrings.menu),
       isAuth ? const Text(AppStrings.sendMoney) : const Text(AppStrings.nonOffice),
@@ -35,6 +36,8 @@ class RoutersCubit extends Cubit<RoutersState> {
   }
 
   void pageToInitial() {
+    selectedItem = isAuth ? titles.first : AppStrings.login;
+    selectedItemIndex = isAuth ? 0 : -1;
     emit(RoutersInitial());
   }
 

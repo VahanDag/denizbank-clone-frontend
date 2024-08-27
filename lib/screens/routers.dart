@@ -46,14 +46,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RoutersCubit, RoutersState>(
-      listener: (context, state) {
-        if (state is RoutersInitial) {
-          final cubit = context.read<RoutersCubit>();
-
-          cubit.selectedItemIndex = -1;
-          cubit.selectedItem = "initial";
-        }
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         final cubit = context.read<RoutersCubit>();
         return Scaffold(
@@ -65,7 +58,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 cubit.isAuth
-                    ? _icons(cubit: cubit, title: cubit.titles.first, icon: Icons.home)
+                    ? _icons(cubit: cubit, title: cubit.titles.first, icon: Icons.home, onTap: () => cubit.changeItem(0))
                     : _icons(
                         cubit: cubit,
                         onTap: () {

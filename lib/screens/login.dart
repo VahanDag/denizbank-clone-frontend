@@ -16,79 +16,50 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-  late final TabBar _tabbar;
-
-  @override
-  void initState() {
-    _tabController = TabController(length: 2, vsync: this);
-    _tabbar = TabBar(
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        dividerColor: Colors.transparent,
-        labelColor: Colors.white,
-        indicatorWeight: 3,
-        indicatorColor: Colors.white,
-        indicatorPadding: PaddingConstant.paddingOnlyTopLow,
-        unselectedLabelColor: Colors.grey.shade400,
-        controller: _tabController,
-        tabs: [Text(AppStrings.individual.toUpperCase()), Text(AppStrings.institutional.toUpperCase())]);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
         child: Column(
       children: [
-        Container(
-          height: context.deviceHeight * 0.5,
-          color: Colors.blue,
-          child: Column(
-            children: [
-              Padding(
-                padding: PaddingConstant.paddingAllHigh,
-                child: Row(
-                  children: [
-                    Image.asset(width: 150, "assets/images/denizbank.png"),
-                    const Spacer(),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_active)),
-                  ],
-                ),
-              ),
-              Container(margin: PaddingConstant.paddingOnlyBottomHigh, width: context.deviceWidth * 0.6, child: _tabbar),
-              Expanded(
-                  child: TabBarView(
-                      controller: _tabController, children: [const IndividualUsers(), Center(child: comingSoon())]))
-            ],
-          ),
+        HomeAndLoginTopArea(
+          height: 0.55,
+          tabWidth: 0.6,
+          tabs: [Text(AppStrings.individual.toUpperCase()), Text(AppStrings.institutional.toUpperCase())],
+          tabChildren: [const IndividualUsers(), Center(child: comingSoon())],
         ),
         Container(
-          margin: PaddingConstant.paddingVerticalHigh,
-          height: 75,
+          margin: PaddingConstant.paddingVerticalHigh.copyWith(bottom: 5),
+          height: 120,
           child: ListView.builder(
             itemCount: 6,
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext context, int index) {
               return Container(
-                height: 75,
-                width: 75,
-                margin: PaddingConstant.paddingHorizontal,
-                padding: PaddingConstant.paddingAll,
-                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 2)),
-                child: Image.asset("assets/images/denizbank.png"),
+                margin: PaddingConstant.paddingHorizontalLow,
+                width: 100,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 75,
+                      width: 75,
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 2)),
+                      child: Image.asset("assets/images/denizbank.png"),
+                    ),
+                    Text(
+                      "Yenilenen MobilDeniz ile artık çok kolay",
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.labelSmall,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  ],
+                ),
               );
             },
           ),
         ),
         SizedBox(
-          height: 125,
+          height: 100,
           child: ListView.builder(
             itemCount: 4,
             scrollDirection: Axis.horizontal,
@@ -103,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: ListTile(
                     leading: const Icon(
                       Icons.trending_up,
-                      size: 50,
+                      size: 40,
                     ),
                     title: Text(
                       "Piyasalar",
@@ -118,6 +89,81 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
       ],
     ));
+  }
+}
+
+class HomeAndLoginTopArea extends StatefulWidget {
+  const HomeAndLoginTopArea(
+      {super.key,
+      required List<Widget> tabs,
+      required List<Widget> tabChildren,
+      required this.tabWidth,
+      required this.height})
+      : _tabs = tabs,
+        _tabChildren = tabChildren;
+
+  final List<Widget> _tabs;
+  final List<Widget> _tabChildren;
+
+  /// width should be between 0.0 and 1.0
+  final double tabWidth;
+  final double height;
+
+  @override
+  State<HomeAndLoginTopArea> createState() => _HomeAndLoginTopAreaState();
+}
+
+class _HomeAndLoginTopAreaState extends State<HomeAndLoginTopArea> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  late final TabBar _tabbar;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: widget._tabs.length, vsync: this);
+    _tabbar = TabBar(
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        dividerColor: Colors.transparent,
+        labelColor: Colors.white,
+        indicatorWeight: 3,
+        indicatorColor: Colors.white,
+        indicatorPadding: PaddingConstant.paddingOnlyTopLow,
+        unselectedLabelColor: Colors.grey.shade400,
+        controller: _tabController,
+        tabs: widget._tabs);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: context.deviceHeight * widget.height,
+      width: double.infinity,
+      color: const Color(0xff367cde),
+      child: Column(
+        children: [
+          Padding(
+            padding: PaddingConstant.paddingAllHigh,
+            child: Row(
+              children: [
+                Image.asset(width: 150, "assets/images/denizbank.png"),
+                const Spacer(),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
+              ],
+            ),
+          ),
+          Container(
+              margin: PaddingConstant.paddingOnlyBottomHigh, width: context.deviceWidth * widget.tabWidth, child: _tabbar),
+          Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
+        ],
+      ),
+    );
   }
 }
 
@@ -177,6 +223,7 @@ class _LoginSheetChildState extends State<LoginSheetChild> with SingleTickerProv
   @override
   void dispose() {
     _tabController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -204,31 +251,42 @@ class _LoginSheetChildState extends State<LoginSheetChild> with SingleTickerProv
               controller: _tabController,
               tabs: const [Text(AppStrings.loginWithPaint), Text(AppStrings.loginWithPassword)]),
         ),
-        Padding(
-          padding: PaddingConstant.paddingHorizontalHigh,
-          child: Column(
-            children: [
-              const Align(alignment: Alignment.centerLeft, child: Text(AppStrings.password)),
-              CustomTextField(
-                controller: _passwordController,
-                margin: PaddingConstant.paddingVerticalLow,
-                hintText: AppStrings.pleaseEnter,
-                isPassword: true,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        AppStrings.forgotPassword,
-                        style: context.textTheme.titleSmall,
-                      ))),
-            ],
-          ),
-        ),
-        CustomButton(margin: PaddingConstant.paddingAllHigh, height: 50, width: 1, onPressed: () {}, text: AppStrings.login)
+        SizedBox(
+          height: 250,
+          child: TabBarView(controller: _tabController, children: [
+            Center(child: comingSoon(textColor: Colors.blueGrey)),
+            Column(
+              children: [
+                Padding(
+                  padding: PaddingConstant.paddingHorizontalHigh,
+                  child: Column(
+                    children: [
+                      const Align(alignment: Alignment.centerLeft, child: Text(AppStrings.password)),
+                      CustomTextField(
+                        controller: _passwordController,
+                        margin: PaddingConstant.paddingVerticalLow,
+                        hintText: AppStrings.pleaseEnter,
+                        isPassword: true,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      ),
+                      Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                AppStrings.forgotPassword,
+                                style: context.textTheme.titleSmall,
+                              ))),
+                    ],
+                  ),
+                ),
+                CustomButton(
+                    margin: PaddingConstant.paddingAllHigh, height: 50, width: 1, onPressed: () {}, text: AppStrings.login),
+              ],
+            )
+          ]),
+        )
       ],
     );
   }
