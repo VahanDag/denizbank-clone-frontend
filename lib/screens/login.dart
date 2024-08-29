@@ -22,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         child: Column(
       children: [
         HomeAndLoginTopArea(
+          otherWidgets: const [],
           height: 0.55,
           tabWidth: 0.6,
           tabs: [Text(AppStrings.individual.toUpperCase()), Text(AppStrings.institutional.toUpperCase())],
@@ -97,6 +98,7 @@ class HomeAndLoginTopArea extends StatefulWidget {
       {super.key,
       required List<Widget> tabs,
       required List<Widget> tabChildren,
+      required this.otherWidgets,
       required this.tabWidth,
       required this.height})
       : _tabs = tabs,
@@ -108,6 +110,7 @@ class HomeAndLoginTopArea extends StatefulWidget {
   /// width should be between 0.0 and 1.0
   final double tabWidth;
   final double height;
+  final List<Widget> otherWidgets;
 
   @override
   State<HomeAndLoginTopArea> createState() => _HomeAndLoginTopAreaState();
@@ -141,28 +144,34 @@ class _HomeAndLoginTopAreaState extends State<HomeAndLoginTopArea> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: context.deviceHeight * widget.height,
-      width: double.infinity,
-      color: const Color(0xff367cde),
-      child: Column(
-        children: [
-          Padding(
-            padding: PaddingConstant.paddingAllHigh,
-            child: Row(
-              children: [
-                Image.asset(width: 150, "assets/images/denizbank.png"),
-                const Spacer(),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
-              ],
-            ),
+    return Column(
+      children: [
+        Container(
+          height: context.deviceHeight * 0.20,
+          width: double.infinity,
+          color: const Color(0xff367cde),
+          child: Column(
+            children: [
+              Padding(
+                padding: PaddingConstant.paddingAllHigh,
+                child: Row(
+                  children: [
+                    Image.asset(width: 150, "assets/images/denizbank.png"),
+                    const Spacer(),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
+                  ],
+                ),
+              ),
+              Container(
+                  margin: PaddingConstant.paddingOnlyBottomHigh,
+                  width: context.deviceWidth * widget.tabWidth,
+                  child: _tabbar),
+            ],
           ),
-          Container(
-              margin: PaddingConstant.paddingOnlyBottomHigh, width: context.deviceWidth * widget.tabWidth, child: _tabbar),
-          Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
-        ],
-      ),
+        ),
+        Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
+      ],
     );
   }
 }

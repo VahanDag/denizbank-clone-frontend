@@ -3,6 +3,7 @@ import 'package:denizbank_clone/screens/applications/applications.dart';
 import 'package:denizbank_clone/screens/fast/fast_transactions.dart';
 import 'package:denizbank_clone/screens/home.dart';
 import 'package:denizbank_clone/screens/login.dart';
+import 'package:denizbank_clone/screens/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,7 +14,7 @@ class RoutersCubit extends Cubit<RoutersState> {
     pages = [
       isAuth ? const HomeScreen() : const FastTransactionsScreen(),
       const Applications(),
-      const Text(AppStrings.menu),
+      const MenuScreen(),
       isAuth ? const Text(AppStrings.sendMoney) : const Text(AppStrings.nonOffice),
       isAuth ? const Text(AppStrings.defray) : const Text(AppStrings.campaign),
       if (!isAuth) const LoginScreen()
