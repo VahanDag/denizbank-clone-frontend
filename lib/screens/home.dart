@@ -1,8 +1,14 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
 import 'package:denizbank_clone/core/constants/app_strings.dart';
+import 'package:denizbank_clone/core/constants/enums.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
+import 'package:denizbank_clone/cubit/user/user_cubit.dart';
+import 'package:denizbank_clone/models/widget_models.dart';
 import 'package:denizbank_clone/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,14 +20,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: HomeAndLoginTopArea(
-        otherWidgets: const [],
-        height: 0.4,
-        tabWidth: 1,
-        tabs: [_tabTexts(AppStrings.accounts), _tabTexts(AppStrings.cards), _tabTexts(AppStrings.financialSummary)],
-        tabChildren: const [Accounts(), Accounts(), Accounts()],
-      ),
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: HomeAndLoginTopArea(
+            otherWidgets: const [],
+            height: 0.2,
+            tabWidth: 1,
+            tabs: [_tabTexts(AppStrings.accounts), _tabTexts(AppStrings.cards), _tabTexts(AppStrings.financialSummary)],
+            tabChildren: const [Accounts(), Accounts(), Accounts()],
+          ),
+        );
+      },
     );
   }
 
@@ -41,6 +51,7 @@ class Accounts extends StatefulWidget {
 }
 
 class _AccountsState extends State<Accounts> {
+  late final List<ActionsModel> _actions;
   bool _isVisible = true;
   void _changeVisibility() {
     setState(() {
@@ -49,7 +60,35 @@ class _AccountsState extends State<Accounts> {
   }
 
   @override
+  void initState() {
+    _actions = [
+      ActionsModel(
+          actionsName: AppStrings.sendMoney2line,
+          actionsEnum: ActionsEnum.sendMoney,
+          icon: Icon(
+            MdiIcons.currencyTry,
+            color: Colors.white,
+          )),
+      ActionsModel(
+          actionsName: AppStrings.payBill2Line,
+          actionsEnum: ActionsEnum.payBill,
+          icon: Icon(color: Colors.white, MdiIcons.receiptTextOutline)),
+      ActionsModel(
+          actionsName: AppStrings.qrActions2line,
+          actionsEnum: ActionsEnum.qrActions,
+          icon: Icon(color: Colors.white, MdiIcons.qrcode)),
+      ActionsModel(
+          actionsName: AppStrings.publishIban2line,
+          actionsEnum: ActionsEnum.publishIBAN,
+          icon: const Icon(color: Colors.white, Icons.file_upload_outlined)),
+    ];
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var user = context.read<UserCubit>().state.user;
+
     return Column(
       children: [
         Container(
@@ -118,11 +157,11 @@ class _AccountsState extends State<Accounts> {
                 collapsedHeight: 120,
                 primary: false,
                 floating: true,
-                backgroundColor: const Color(0xff367cde),
+                backgroundColor: AppColors.mainBlue,
                 flexibleSpace: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
-                    4,
+                    _actions.length,
                     (index) => Column(
                       children: [
                         Container(
@@ -134,10 +173,10 @@ class _AccountsState extends State<Accounts> {
                             color: Colors.blue.shade300.withOpacity(0.6),
                             borderRadius: BorderRadiusConstant.borderRadius,
                           ),
-                          child: const Icon(Icons.qr_code, color: Colors.white),
+                          child: _actions[index].icon,
                         ),
                         Text(
-                          AppStrings.sendMoney2line,
+                          _actions[index].actionsName,
                           textAlign: TextAlign.center,
                           style: context.textTheme.titleSmall?.copyWith(color: Colors.white),
                         ),

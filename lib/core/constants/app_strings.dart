@@ -1,5 +1,6 @@
 mixin AppStrings {
   static const String welcome = "Hoşgeldiniz!";
+  static const String welcomeMessage = "Mobil Deniz'e\nHoş Geldiniz!";
   static const String home = "Ana Sayfa";
   static const String fast = "FAST İşlemleri";
   static const String applications = "Başvurular";
@@ -10,6 +11,7 @@ mixin AppStrings {
   static const String menu = "Menü";
   static const String login = "Giriş Yapın";
   static const String loginWithOther = "Farklı Kullanıcı ile Giriş Yapın";
+  static const String register = "Müşteri Olun";
   static const String individual = "Bireysel";
   static const String institutional = "Krurumsal";
   static const String individualLogin = "Bireysel Giriş";
@@ -23,4 +25,7 @@ mixin AppStrings {
   static const String financialSummary = "Finansal Özet";
   static const String availableBalance = "Kullanılabilir Bakiye";
   static const String sendMoney2line = "Para \nGönder";
+  static const String payBill2Line = "Fatura \nÖde";
+  static const String qrActions2line = "QR \nİşlemleri";
+  static const String publishIban2line = "IBAN \nPaylaş";
 }

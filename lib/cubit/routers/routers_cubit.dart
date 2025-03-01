@@ -3,7 +3,7 @@ import 'package:denizbank_clone/screens/applications/applications.dart';
 import 'package:denizbank_clone/screens/fast/fast_transactions.dart';
 import 'package:denizbank_clone/screens/home.dart';
 import 'package:denizbank_clone/screens/login.dart';
-import 'package:denizbank_clone/screens/menu.dart';
+import 'package:denizbank_clone/screens/menu/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,10 +11,23 @@ part 'routers_state.dart';
 
 class RoutersCubit extends Cubit<RoutersState> {
   RoutersCubit(this.isAuth) : super(RoutersInitial()) {
+    _initializePages();
+  }
+
+  void updateAuthStatus(bool newAuthStatus) {
+    if (isAuth != newAuthStatus) {
+      isAuth = newAuthStatus;
+      _initializePages();
+      pageToInitial();
+    }
+  }
+
+  // Initializing pages and titles
+  void _initializePages() {
     pages = [
       isAuth ? const HomeScreen() : const FastTransactionsScreen(),
       const Applications(),
-      const MenuScreen(),
+      MenuScreen(),
       isAuth ? const Text(AppStrings.sendMoney) : const Text(AppStrings.nonOffice),
       isAuth ? const Text(AppStrings.defray) : const Text(AppStrings.campaign),
       if (!isAuth) const LoginScreen()
@@ -43,16 +56,17 @@ class RoutersCubit extends Cubit<RoutersState> {
   }
 
   void changeItem(int index) {
-    print(index);
-    selectedItem = titles[index];
-    selectedItemIndex = index;
-    emit(OtherPage());
+    if (index >= 0 && index < titles.length) {
+      selectedItem = titles[index];
+      selectedItemIndex = index;
+      emit(OtherPage());
+    }
   }
 
-  late bool isAuth;
-  late String selectedItem;
-  late int selectedItemIndex;
+  bool isAuth;
+  String selectedItem = '';
+  int selectedItemIndex = 0;
 
-  late final List<Widget> pages;
-  late final List<String> titles;
+  late List<Widget> pages;
+  late List<String> titles;
 }

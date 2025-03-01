@@ -1,3 +1,4 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 dynamic customBottomSheet(
     {required BuildContext context, required String title, required Widget child, double? height = 0.6}) {
   return showModalBottomSheet(
-      isScrollControlled: true, // Bu zaten doğru ayarlanmış.
+      isScrollControlled: true,
       context: context,
       builder: (context) => DraggableScrollableSheet(
             expand: false,
@@ -20,12 +21,15 @@ dynamic customBottomSheet(
                     Row(
                       children: [
                         Text(title,
-                            style: context.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue)),
+                            style: context.textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold, color: AppColors.mainBlue)),
                         const Spacer(),
-                        IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                        IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close_rounded, color: Colors.grey)),
                       ],
                     ),
-                    const Divider(),
+                    Divider(color: Colors.grey.shade400),
                     child,
                   ],
                 ),

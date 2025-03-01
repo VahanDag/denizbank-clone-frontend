@@ -1,3 +1,11 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:denizbank_clone/core/constants/app_colors.dart';
+import 'package:denizbank_clone/core/constants/validators.dart';
+import 'package:denizbank_clone/cubit/auth/auth_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
@@ -5,8 +13,8 @@ import 'package:denizbank_clone/core/widgets/coming_soon.dart';
 import 'package:denizbank_clone/core/widgets/custom_bottomsheet.dart';
 import 'package:denizbank_clone/core/widgets/custom_buttons.dart';
 import 'package:denizbank_clone/core/widgets/custom_textfield.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:denizbank_clone/cubit/user/user_cubit.dart';
+import 'package:denizbank_clone/screens/auth/register/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,78 +26,85 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      children: [
-        HomeAndLoginTopArea(
-          otherWidgets: const [],
-          height: 0.55,
-          tabWidth: 0.6,
-          tabs: [Text(AppStrings.individual.toUpperCase()), Text(AppStrings.institutional.toUpperCase())],
-          tabChildren: [const IndividualUsers(), Center(child: comingSoon())],
-        ),
-        Container(
-          margin: PaddingConstant.paddingVerticalHigh.copyWith(bottom: 5),
-          height: 120,
-          child: ListView.builder(
-            itemCount: 6,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                margin: PaddingConstant.paddingHorizontalLow,
-                width: 100,
-                child: Column(
-                  children: [
-                    Container(
-                      height: 75,
-                      width: 75,
-                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 2)),
-                      child: Image.asset("assets/images/denizbank.png"),
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (context, state) {
+        return Center(
+            child: Column(
+          children: [
+            Expanded(
+              child: HomeAndLoginTopArea(
+                otherWidgets: const [],
+                height: 0.2,
+                tabWidth: 0.6,
+                tabs: [Text(AppStrings.individual.toUpperCase()), Text(AppStrings.institutional.toUpperCase())],
+                tabChildren: [const IndividualUsers(), Center(child: comingSoon())],
+              ),
+            ),
+            Container(
+              margin: PaddingConstant.paddingVerticalHigh.copyWith(bottom: 5, left: 10),
+              height: 140,
+              child: ListView.builder(
+                itemCount: 6,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    margin: PaddingConstant.paddingHorizontalLow,
+                    width: 100,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 75,
+                          width: 75,
+                          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 2)),
+                          child: Image.asset("assets/images/denizbank.png"),
+                        ),
+                        Text(
+                          "Yenilenen MobilDeniz ile artık çok kolay",
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          style: context.textTheme.labelSmall,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      ],
                     ),
-                    Text(
-                      "Yenilenen MobilDeniz ile artık çok kolay",
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.labelSmall,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            itemCount: 4,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext context, int index) {
-              return Card(
-                margin: PaddingConstant.paddingHorizontal,
-                elevation: 5,
-                child: Container(
-                  width: 300,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(borderRadius: BorderRadiusConstant.borderRadius, color: Colors.white),
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.trending_up,
-                      size: 40,
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                padding: PaddingConstant.paddingOnlyLeft,
+                itemCount: 4,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    margin: PaddingConstant.paddingAllLow,
+                    elevation: 5,
+                    child: Container(
+                      width: 300,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(borderRadius: BorderRadiusConstant.borderRadius, color: Colors.white),
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.trending_up,
+                          size: 40,
+                        ),
+                        title: Text(
+                          "Piyasalar",
+                          style: context.textTheme.titleMedium,
+                        ),
+                        subtitle: const Text("Tüm piyasa verilerine buradan ulaşın."),
+                      ),
                     ),
-                    title: Text(
-                      "Piyasalar",
-                      style: context.textTheme.titleMedium,
-                    ),
-                    subtitle: const Text("Tüm piyasa verilerine buradan ulaşın."),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    ));
+                  );
+                },
+              ),
+            ),
+          ],
+        ));
+      },
+    );
   }
 }
 
@@ -109,6 +124,8 @@ class HomeAndLoginTopArea extends StatefulWidget {
 
   /// width should be between 0.0 and 1.0
   final double tabWidth;
+
+  /// width should be between 0.0 and 1.0
   final double height;
   final List<Widget> otherWidgets;
 
@@ -132,6 +149,7 @@ class _HomeAndLoginTopAreaState extends State<HomeAndLoginTopArea> with SingleTi
         indicatorPadding: PaddingConstant.paddingOnlyTopLow,
         unselectedLabelColor: Colors.grey.shade400,
         controller: _tabController,
+        indicatorSize: TabBarIndicatorSize.label,
         tabs: widget._tabs);
     super.initState();
   }
@@ -144,34 +162,38 @@ class _HomeAndLoginTopAreaState extends State<HomeAndLoginTopArea> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: context.deviceHeight * 0.20,
-          width: double.infinity,
-          color: const Color(0xff367cde),
-          child: Column(
-            children: [
-              Padding(
-                padding: PaddingConstant.paddingAllHigh,
-                child: Row(
-                  children: [
-                    Image.asset(width: 150, "assets/images/denizbank.png"),
-                    const Spacer(),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
-                  ],
+    return Container(
+      // color: const Color(0xff367cde),
+      child: Column(
+        children: [
+          Container(
+            color: AppColors.mainBlue,
+            height: context.deviceHeight * widget.height,
+            width: double.infinity,
+            child: Column(
+              children: [
+                Padding(
+                  padding: PaddingConstant.paddingAllHigh,
+                  child: Row(
+                    children: [
+                      Image.asset(width: 150, "assets/images/denizbank.png"),
+                      const Spacer(),
+                      IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
+                      IconButton(
+                          onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                  margin: PaddingConstant.paddingOnlyBottomHigh,
-                  width: context.deviceWidth * widget.tabWidth,
-                  child: _tabbar),
-            ],
+                Container(
+                    margin: PaddingConstant.paddingOnlyBottomHigh,
+                    width: context.deviceWidth * widget.tabWidth,
+                    child: _tabbar),
+              ],
+            ),
           ),
-        ),
-        Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
-      ],
+          Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
+        ],
+      ),
     );
   }
 }
@@ -181,10 +203,41 @@ class IndividualUsers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    var userCubit = context.read<UserCubit>();
+    return Container(
+      color: AppColors.mainBlue,
+      child: Column(
+        children: [
+          userCubit.state.userLoggedBefore
+              ? _userLoggedOnce()
+              : Text(
+                  AppStrings.welcomeMessage,
+                  style: context.textTheme.titleLarge?.copyWith(color: Colors.white),
+                ),
+          const Spacer(),
+          CustomButton(
+              margin: PaddingConstant.paddingOnlyBottom,
+              textColor: Colors.blue,
+              buttonColor: Colors.white,
+              onPressed: () => customBottomSheet(
+                  context: context, title: AppStrings.individualLogin, child: const LoginSheetChild(), height: 0.8),
+              text: AppStrings.login),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterScreen())),
+            child: Text(AppStrings.register, style: context.textTheme.titleMedium?.copyWith(color: Colors.white))
+                .margin(PaddingConstant.paddingOnlyBottomHigh),
+          )
+        ],
+      ),
+    );
+  }
+
+  /// if user logged once this widget will be shown
+  Column _userLoggedOnce() {
+    return const Column(
       children: [
-        const CircleAvatar(backgroundColor: Colors.white, radius: 40, child: Icon(Icons.person_2_outlined, size: 50)),
-        const Padding(
+        CircleAvatar(backgroundColor: Colors.white, radius: 40, child: Icon(Icons.person_2_outlined, size: 50)),
+        Padding(
           padding: PaddingConstant.paddingOnlyTopLow,
           child: Column(
             children: [
@@ -196,14 +249,6 @@ class IndividualUsers extends StatelessWidget {
             ],
           ),
         ),
-        CustomButton(
-            margin: PaddingConstant.paddingVertical,
-            textColor: Colors.blue,
-            buttonColor: Colors.white,
-            onPressed: () => customBottomSheet(
-                context: context, title: AppStrings.individualLogin, child: const LoginSheetChild(), height: 0.8),
-            text: AppStrings.login),
-        Text(AppStrings.loginWithOther, style: context.textTheme.titleMedium?.copyWith(color: Colors.white))
       ],
     );
   }
@@ -221,11 +266,14 @@ class LoginSheetChild extends StatefulWidget {
 class _LoginSheetChildState extends State<LoginSheetChild> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _tcNoController;
+  final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
     _passwordController = TextEditingController();
+    _tcNoController = TextEditingController();
     super.initState();
   }
 
@@ -235,6 +283,96 @@ class _LoginSheetChildState extends State<LoginSheetChild> with SingleTickerProv
     _passwordController.dispose();
     super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return _LoginSubWidgetForFirstLogin(
+        passwordController: _passwordController, tcNoController: _tcNoController, formKey: _formKey);
+    // return _LoginSubWidgetForRegistredUser(tabController: _tabController, passwordController: _passwordController);
+  }
+}
+
+/// If this device will enter this device for the first time, this widget will be displayed.
+class _LoginSubWidgetForFirstLogin extends StatelessWidget {
+  const _LoginSubWidgetForFirstLogin({
+    super.key,
+    required this.tcNoController,
+    required this.passwordController,
+    required this.formKey,
+  });
+  final TextEditingController tcNoController;
+  final TextEditingController passwordController;
+  final GlobalKey<FormState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          CustomTextField(
+            hintText: "Giriniz",
+            controller: tcNoController,
+            title: "T.C. Kimlik Numaranız",
+            validator: (value) => Validators.validateTCKN(value),
+            inputFormatters: [LengthLimitingTextInputFormatter(11), FilteringTextInputFormatter.digitsOnly],
+            keyboardType: TextInputType.number,
+            margin: PaddingConstant.paddingOnlyTopHigh,
+          ),
+          CheckboxRichTextWidget(
+            text: Text('Beni Hatırla', style: context.textTheme.titleMedium),
+            initialValue: true,
+            onChanged: (value) {
+              print('Second checkbox changed to: $value');
+            },
+          ),
+          CustomTextField(
+              validator: (value) => Validators.validatePassword(value),
+              margin: PaddingConstant.paddingOnlyBottomHigh,
+              hintText: "XXXXXX",
+              isPassword: true,
+              inputFormatters: [LengthLimitingTextInputFormatter(6), FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+              controller: passwordController,
+              title: "Parola"),
+          CustomButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  await context.read<AuthCubit>().login(
+                      tcNo: tcNoController.text.trimToTextLower.toInt,
+                      password: passwordController.text.trimToTextLower.toInt);
+                  print("valid");
+                } else {
+                  print("not valid");
+                }
+              },
+              text: "Giriş yapın",
+              width: double.infinity,
+              margin: PaddingConstant.paddingVerticalHigh),
+          Text("DenizBank müşterisi değil misiniz?", style: context.textTheme.titleMedium)
+              .margin(PaddingConstant.paddingVerticalHigh),
+          CustomButton(
+              isOutline: true,
+              onPressed: () {},
+              text: "Müşteri Olun",
+              width: double.infinity,
+              margin: PaddingConstant.paddingOnlyBottomHigh),
+        ],
+      ),
+    );
+  }
+}
+
+/// If the user has logged in before this device, this widget will be displayed
+class _LoginSubWidgetForRegistredUser extends StatelessWidget {
+  const _LoginSubWidgetForRegistredUser({
+    required TabController tabController,
+    required TextEditingController passwordController,
+  })  : _tabController = tabController,
+        _passwordController = passwordController;
+
+  final TabController _tabController;
+  final TextEditingController _passwordController;
 
   @override
   Widget build(BuildContext context) {

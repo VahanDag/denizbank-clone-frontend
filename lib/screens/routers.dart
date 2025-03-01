@@ -20,9 +20,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
   //   });
   // }
 
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
+
   @override
   void initState() {
     // cubit.selectedItemIndex = -1;
+    print("object: initState");
     super.initState();
   }
 
@@ -46,11 +49,19 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RoutersCubit, RoutersState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        print(state);
+        _navigatorKey.currentState!.popUntil((route) => route.isFirst);
+      },
       builder: (context, state) {
         final cubit = context.read<RoutersCubit>();
         return Scaffold(
-          body: cubit.selectedItemIndex == -1 ? cubit.pages.last : cubit.pages[cubit.selectedItemIndex],
+          body: Navigator(
+            key: _navigatorKey,
+            onGenerateRoute: (settings) => MaterialPageRoute(
+                builder: (context) =>
+                    cubit.selectedItemIndex == -1 ? cubit.pages.last : cubit.pages[cubit.selectedItemIndex]),
+          ),
           bottomNavigationBar: SizedBox(
             width: 200,
             height: 70,
@@ -135,42 +146,3 @@ class _BottomNavBarState extends State<BottomNavBar> {
     );
   }
 }
-
-//  BottomNavigationBar(
-//         iconSize: 32,
-//         type: BottomNavigationBarType.shifting,
-//         unselectedItemColor: Colors.grey,
-//         selectedItemColor: Colors.blue,
-//         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-//         showUnselectedLabels: true,
-//         items: [
-//           BottomNavigationBarItem(
-//               icon: Image.asset(height: 32, width: 32, "assets/images/fast-service.png"), label: "FAST işlemleri"),
-//           const BottomNavigationBarItem(icon: Icon(Icons.library_books_outlined), label: "Başvurular"),
-//           BottomNavigationBarItem(
-//               icon: Container(
-//                   padding: PaddingConstant.paddingAllLow.copyWith(left: 15, right: 15),
-//                   decoration: const BoxDecoration(
-//                       borderRadius: BorderRadius.only(
-//                         bottomLeft: Radius.circular(20),
-//                         bottomRight: Radius.circular(20),
-//                       ),
-//                       gradient: LinearGradient(begin: Alignment.bottomRight, end: Alignment.topLeft, colors: [
-//                         Colors.red,
-//                         Colors.pink,
-//                       ])),
-//                   child: Column(
-//                     children: [
-//                       Icon(
-//                         MdiIcons.shipWheel,
-//                         size: 40,
-//                         color: Colors.white,
-//                       ),
-//                       const Text("Menü", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
-//                     ],
-//                   )),
-//               label: ""),
-//           const BottomNavigationBarItem(icon: Icon(Icons.account_balance_outlined), label: "Şubesiz İşlem"),
-//           const BottomNavigationBarItem(icon: Icon(Icons.campaign), label: "Başvurular"),
-//         ],
-//       ),

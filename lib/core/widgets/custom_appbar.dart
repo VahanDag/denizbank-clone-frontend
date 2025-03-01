@@ -38,3 +38,10 @@ final class CustomAppBar extends StatelessWidget implements PreferredSizeWidget 
   @override
   Size get preferredSize => Size.fromHeight(height ?? kToolbarHeight);
 }
+
+Text appBarTitle(String title, {double fontSize = 18}) {
+  return Text(
+    title.toUpperCase(),
+    style: TextStyle(fontSize: fontSize, color: Colors.white, fontWeight: FontWeight.bold),
+  );
+}
