@@ -34,3 +34,11 @@ enum IconEnum {
 enum CardTypeEnum { Credit, Debit }
 
 enum UserStatus { initial, loading, loaded, error }
+
+enum TransactionTypeEnum {
+  Deposit, // Para Yatırma
+  Withdrawal, // Para Çekme
+  Transfer // Havale/EFT
+}
+
+enum TransactionStatus { initial, loading, loaded, error }

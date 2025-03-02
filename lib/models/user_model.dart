@@ -5,7 +5,7 @@ class User {
   final int id; // uint -> int
   final String name;
   final int tcNo; // ulong -> int
-  final List<Card> cards;
+  final List<CardModel> cards;
 
   User({
     required this.id,
@@ -20,7 +20,7 @@ class User {
         id: json['id'] as int,
         name: json['name'] as String,
         tcNo: _parseTcNo(json['tcNo']),
-        cards: (json['cards'] as List<dynamic>).map((e) => Card.fromJson(e as Map<String, dynamic>)).toList(),
+        cards: (json['cards'] as List<dynamic>).map((e) => CardModel.fromJson(e as Map<String, dynamic>)).toList(),
       );
     } catch (e) {
       print('Error parsing User.fromJson: $e');

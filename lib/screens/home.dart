@@ -3,8 +3,12 @@ import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/core/constants/enums.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
+import 'package:denizbank_clone/cubit/cards/cards_cubit.dart';
+import 'package:denizbank_clone/cubit/transaction/transaction_cubit.dart';
+import 'package:denizbank_clone/cubit/transaction/transaction_cubit.dart';
 import 'package:denizbank_clone/cubit/user/user_cubit.dart';
 import 'package:denizbank_clone/models/widget_models.dart';
+import 'package:denizbank_clone/screens/accounts/select_bank_acounts.dart';
 import 'package:denizbank_clone/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,18 +21,43 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserCubit, UserState>(
-      builder: (context, state) {
+      builder: (context, userState) {
         return Scaffold(
-          body: HomeAndLoginTopArea(
-            otherWidgets: const [],
-            height: 0.2,
-            tabWidth: 1,
-            tabs: [_tabTexts(AppStrings.accounts), _tabTexts(AppStrings.cards), _tabTexts(AppStrings.financialSummary)],
-            tabChildren: const [Accounts(), Accounts(), Accounts()],
+          body: BlocBuilder<CardsCubit, CardsState>(
+            builder: (context, cardState) {
+              return HomeAndLoginTopArea(
+                otherWidgets: const [],
+                height: 0.2,
+                tabWidth: 1,
+                tabs: [_tabTexts(AppStrings.accounts), _tabTexts(AppStrings.cards), _tabTexts(AppStrings.financialSummary)],
+                tabChildren: [
+                  // Tab 0: Hesaplar - Banka kartı bilgileri gösterilir
+                  Accounts(tabIndex: 0, tabController: _tabController),
+                  // Tab 1: Kartlar - Kredi kartı bilgileri gösterilir
+                  Accounts(tabIndex: 1, tabController: _tabController),
+                  // Tab 2: Finansal Özet - Banka kartı bilgileri gösterilir
+                  Accounts(tabIndex: 2, tabController: _tabController),
+                ],
+              );
+            },
           ),
         );
       },
@@ -42,8 +71,13 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class Accounts extends StatefulWidget {
+  final int tabIndex;
+  final TabController tabController;
+
   const Accounts({
     super.key,
+    required this.tabIndex,
+    required this.tabController,
   });
 
   @override
@@ -51,8 +85,10 @@ class Accounts extends StatefulWidget {
 }
 
 class _AccountsState extends State<Accounts> {
-  late final List<ActionsModel> _actions;
   bool _isVisible = true;
+  late List<ActionsModel> _debitCardActions;
+  late List<ActionsModel> _creditCardActions;
+
   void _changeVisibility() {
     setState(() {
       _isVisible = !_isVisible;
@@ -61,7 +97,10 @@ class _AccountsState extends State<Accounts> {
 
   @override
   void initState() {
-    _actions = [
+    super.initState();
+
+    // Banka kartı için işlemler
+    _debitCardActions = [
       ActionsModel(
           actionsName: AppStrings.sendMoney2line,
           actionsEnum: ActionsEnum.sendMoney,
@@ -82,12 +121,39 @@ class _AccountsState extends State<Accounts> {
           actionsEnum: ActionsEnum.publishIBAN,
           icon: const Icon(color: Colors.white, Icons.file_upload_outlined)),
     ];
-    super.initState();
+
+    // Kredi kartı için işlemler
+    _creditCardActions = [
+      ActionsModel(
+          actionsName: "Kart\nDetay",
+          actionsEnum: ActionsEnum.cardDetail,
+          icon: Icon(color: Colors.white, MdiIcons.creditCardOutline)),
+      ActionsModel(
+          actionsName: "Borç\nÖde", actionsEnum: ActionsEnum.payDebt, icon: Icon(color: Colors.white, MdiIcons.cashCheck)),
+      ActionsModel(
+          actionsName: "Nakit\nAvans",
+          actionsEnum: ActionsEnum.cashAdvance,
+          icon: Icon(color: Colors.white, MdiIcons.cashFast)),
+      ActionsModel(
+          actionsName: "Limit\nGüncelle",
+          actionsEnum: ActionsEnum.updateLimits,
+          icon: Icon(color: Colors.white, MdiIcons.creditCardSettings)),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     var user = context.read<UserCubit>().state.user;
+    var cardsCubit = context.read<CardsCubit>();
+
+    // Aktif tab kredi kartını mı (Cards tab) yoksa banka kartını mı (Accounts tab) göstermeli?
+    bool isShowingCreditCard = widget.tabIndex == 1; // Tab index 1 = Kartlar tab'ı
+
+    // Tab'a göre kart seçimi
+    final selectedCard = isShowingCreditCard ? cardsCubit.selectedCreditCard : cardsCubit.selectedDebitCard;
+
+    // Tab'a göre action'ları seç
+    final actions = isShowingCreditCard ? _creditCardActions : _debitCardActions;
 
     return Column(
       children: [
@@ -105,19 +171,28 @@ class _AccountsState extends State<Accounts> {
                 ),
                 child: ListTile(
                   contentPadding: PaddingConstant.paddingHorizontalLow.copyWith(left: 15),
-                  title: const Text(
-                    "Vahan Dağ",
-                    style: TextStyle(color: Colors.white),
+                  title: Text(
+                    selectedCard?.cardType.cardName ?? "Kart seçilmedi",
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  subtitle: const Text(
-                    "4576673 581 / Kaynarca",
-                    style: TextStyle(color: Colors.white),
+                  subtitle: Text(
+                    selectedCard != null
+                        ? "${selectedCard.cardNumber.substring(selectedCard.cardNumber.length - 8)} / İstanbul"
+                        : "",
+                    style: const TextStyle(color: Colors.white),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      SelectBankAcounts(cards: user?.cards ?? [], selectedCard: selectedCard),
+                                ));
+                          },
                           icon: const Icon(
                             Icons.keyboard_arrow_down_rounded,
                             color: Colors.white,
@@ -137,13 +212,13 @@ class _AccountsState extends State<Accounts> {
                 ),
               ),
               Text(
-                AppStrings.availableBalance,
+                isShowingCreditCard ? "Kullanılabilir Limit" : AppStrings.availableBalance,
                 style: TextStyle(color: Colors.grey.shade300),
               ),
               Padding(
                 padding: PaddingConstant.paddingOnlyTop,
                 child: Text(
-                  _isVisible ? "345,34 TL" : "***,**",
+                  _isVisible ? "${isShowingCreditCard ? selectedCard?.balanceLimit : selectedCard?.balance} TL" : "***,**",
                   style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
@@ -161,7 +236,7 @@ class _AccountsState extends State<Accounts> {
                 flexibleSpace: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
-                    _actions.length,
+                    actions.length,
                     (index) => Column(
                       children: [
                         Container(
@@ -173,10 +248,10 @@ class _AccountsState extends State<Accounts> {
                             color: Colors.blue.shade300.withOpacity(0.6),
                             borderRadius: BorderRadiusConstant.borderRadius,
                           ),
-                          child: _actions[index].icon,
+                          child: actions[index].icon,
                         ),
                         Text(
-                          _actions[index].actionsName,
+                          actions[index].actionsName,
                           textAlign: TextAlign.center,
                           style: context.textTheme.titleSmall?.copyWith(color: Colors.white),
                         ),
@@ -188,28 +263,46 @@ class _AccountsState extends State<Accounts> {
               SliverPadding(
                 padding: PaddingConstant.paddingOnlyTopHigh,
                 sliver: _isVisible
-                    ? SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return ListTile(
-                              minVerticalPadding: 20,
-                              shape: const Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
-                              title: const Text("Kredi Kartı Ödemesi"),
-                              subtitle: const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Do consequat enim fugiat laboris."),
-                                  Text("22 Ağustos 2024"),
-                                ],
-                              ),
-                              trailing: Text(
-                                "34,15 TL",
-                                style: context.textTheme.titleMedium,
+                    ? BlocBuilder<TransactionCubit, TransactionState>(
+                        builder: (context, state) {
+                          final isShowingCreditCard = widget.tabIndex == 1;
+                          if (state is TransactionLoading) {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: CircularProgressIndicator(),
                               ),
                             );
-                          },
-                          childCount: 10,
-                        ),
+                          } else if (state is TransactionLoaded) {
+                            final transactions = state.transactions;
+                            return SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final transaction = transactions![index];
+                                  return ListTile(
+                                    minVerticalPadding: 20,
+                                    shape: const Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
+                                    title: Text(isShowingCreditCard ? "Kredi Kartı Ödemesi" : "Hesap Hareketi"),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(isShowingCreditCard ? "Market alışverişi" : "Hesap transferi"),
+                                        Text(transaction.date?.toFormattedDate ?? ""),
+                                      ],
+                                    ),
+                                    trailing: Text(
+                                      "${transaction.amount} TL",
+                                      style: context.textTheme.titleMedium,
+                                    ),
+                                  );
+                                },
+                                childCount: transactions?.length ?? 0,
+                              ),
+                            );
+                          } else {
+                            return const SliverFillRemaining(
+                                child: Center(child: Text("Hesap geçmişi çekilirken bir hata oluştu")));
+                          }
+                        },
                       )
                     : SliverFillRemaining(
                         child: Column(

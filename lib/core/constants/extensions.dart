@@ -24,3 +24,7 @@ extension StringExtension on String {
   int get toInt => int.parse(this);
   double get toDouble => double.parse(this);
 }
+
+extension DateTimeExtension on DateTime {
+  String get toFormattedDate => "${day.toString().padLeft(2, '0')}.${month.toString().padLeft(2, '0')}.${year.toString()}";
+}

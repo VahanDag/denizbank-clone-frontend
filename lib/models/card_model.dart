@@ -51,7 +51,7 @@ class CardType {
 }
 
 // Card.cs sınıfına karşılık gelir
-class Card {
+class CardModel {
   final int id;
   final int accountId; // uint -> int
   final String cardNumber;
@@ -64,7 +64,7 @@ class Card {
   final int? cutOfDate; // nullable, ushort? -> int?
   final String? iban; // nullable
 
-  Card({
+  CardModel({
     required this.id,
     required this.accountId,
     required this.cardNumber,
@@ -78,8 +78,8 @@ class Card {
     this.iban,
   });
 
-  factory Card.fromJson(Map<String, dynamic> json) {
-    return Card(
+  factory CardModel.fromJson(Map<String, dynamic> json) {
+    return CardModel(
       id: json['id'] as int,
       accountId: json['accountId'] as int,
       cardNumber: json['cardNumber'] as String,
@@ -124,6 +124,6 @@ class Card {
 
   @override
   String toString() {
-    return 'Card(id: $id, number: $cardNumber, type: ${cardType.cardName})';
+    return 'CardModel(id: $id, number: $cardNumber, type: ${cardType.cardName})';
   }
 }
