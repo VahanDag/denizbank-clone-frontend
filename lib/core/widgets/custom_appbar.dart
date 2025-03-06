@@ -1,3 +1,4 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
 import 'package:denizbank_clone/cubit/routers/routers_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +15,7 @@ final class CustomAppBar extends StatelessWidget implements PreferredSizeWidget 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.blue,
+      backgroundColor: AppColors.mainBlue,
       leading: leading ?? _defaultBack(context),
       title: title,
       actions: actions,

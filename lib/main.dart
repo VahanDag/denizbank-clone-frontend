@@ -1,3 +1,6 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
+import 'package:denizbank_clone/core/constants/extensions.dart';
+import 'package:denizbank_clone/core/constants/paddings_borders.dart';
 import 'package:denizbank_clone/cubit/auth/auth_state.dart';
 import 'package:denizbank_clone/cubit/auth/auth_cubit.dart';
 import 'package:denizbank_clone/cubit/cards/cards_cubit.dart';
@@ -54,18 +57,15 @@ class MyApp extends StatelessWidget {
               print("Auth State is Authenticated, updating RoutersCubit");
               routersCubit.updateAuthStatus(true);
 
-              // Kullanıcı kimliği doğrulandığında kullanıcı bilgilerini kontrol et
               final userCubit = context.read<UserCubit>();
               if (userCubit.state.user == null) {
                 userCubit.loadUser();
               }
 
-              // Kartları yükle
               final cardsCubit = context.read<CardsCubit>();
               cardsCubit.loadCards();
               print("cards loaded");
 
-              // İşlemleri yükle
               final transactionCubit = context.read<TransactionCubit>();
               transactionCubit.loadAllTransactions();
             } else if (state is AuthUnauthenticated) {
@@ -91,18 +91,35 @@ class MyApp extends StatelessWidget {
         ),
         home: BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
-            // Initial ve AppLoading durumlarında splash ekranını göster
             if (state is AuthInitial || state is AuthAppLoading) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return const SplashScreen();
             }
 
-            // Diğer durumlar için normal ekranı göster
             return const BottomNavBar();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        alignment: Alignment.center,
+        color: AppColors.mainBlue,
+        child: Column(
+          children: [
+            const Spacer(),
+            Image.asset("assets/images/denizbank.png", width: 300),
+            const Spacer(),
+            const Text("Developed by Vahan Dağ", style: TextStyle(color: Colors.white))
+                .margin(PaddingConstant.paddingOnlyBottomHigh)
+          ],
         ),
       ),
     );

@@ -1,6 +1,8 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'package:denizbank_clone/core/constants/enums.dart';
 
-// DenizBankCard sınıfına karşılık gelir
 class CardType {
   final int id;
   final String cardName;
@@ -50,7 +52,6 @@ class CardType {
   }
 }
 
-// Card.cs sınıfına karşılık gelir
 class CardModel {
   final int id;
   final int accountId; // uint -> int
@@ -58,8 +59,8 @@ class CardModel {
   final CardType cardType;
   final int csv; // ushort -> int
   final String expirationDate;
-  final double balance; // decimal -> double
-  final double? balanceLimit; // nullable, decimal? -> double?
+  double balance; // decimal -> double
+  double? balanceLimit; // nullable, decimal? -> double?
   final double? debt; // nullable, decimal? -> double?
   final int? cutOfDate; // nullable, ushort? -> int?
   final String? iban; // nullable
@@ -110,7 +111,6 @@ class CardModel {
     };
   }
 
-  // Sayısal değerleri güvenli bir şekilde double'a dönüştürmek için yardımcı metod
   static double _parseDouble(dynamic value) {
     if (value is int) {
       return value.toDouble();
@@ -125,5 +125,57 @@ class CardModel {
   @override
   String toString() {
     return 'CardModel(id: $id, number: $cardNumber, type: ${cardType.cardName})';
+  }
+}
+
+class CompanyCardModel {
+  final int id;
+  final String cardName;
+  final CardTypeEnum cardType;
+  final String cardDescription;
+  final String imageURI;
+
+  CompanyCardModel({
+    required this.id,
+    required this.cardName,
+    required this.cardType,
+    required this.cardDescription,
+    required this.imageURI,
+  });
+
+  CompanyCardModel copyWith({
+    int? id,
+    String? cardName,
+    CardTypeEnum? cardType,
+    String? cardDescription,
+    String? imageURI,
+  }) {
+    return CompanyCardModel(
+      id: id ?? this.id,
+      cardName: cardName ?? this.cardName,
+      cardType: cardType ?? this.cardType,
+      cardDescription: cardDescription ?? this.cardDescription,
+      imageURI: imageURI ?? this.imageURI,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'cardName': cardName,
+      'cardType': cardType.toString().split('.').last,
+      'cardDescription': cardDescription,
+      'imageURI': imageURI,
+    };
+  }
+
+  factory CompanyCardModel.fromJson(Map<String, dynamic> map) {
+    return CompanyCardModel(
+      id: map['id'] as int,
+      cardName: map['cardName'] as String,
+      cardType: CardType._parseCardTypeEnum(map['cardType']),
+      cardDescription: map['cardDescription'] as String,
+      imageURI: map['imageURI'] as String,
+    );
   }
 }

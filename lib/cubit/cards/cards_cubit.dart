@@ -4,7 +4,6 @@ import 'package:denizbank_clone/models/card_model.dart';
 import 'package:denizbank_clone/service/card_service.dart';
 part 'cards_state.dart';
 
-// Card durumları için enum
 enum CardsStatus { initial, loading, loaded, error }
 
 class CardsCubit extends Cubit<CardsState> {
@@ -12,11 +11,9 @@ class CardsCubit extends Cubit<CardsState> {
 
   CardsCubit(this._cardService) : super(CardsState());
 
-  // Seçilen kartlar için değişkenler
   CardModel? _selectedDebitCard;
   CardModel? _selectedCreditCard;
 
-  // Getter'lar
   CardModel? get selectedDebitCard => _selectedDebitCard;
   CardModel? get selectedCreditCard => _selectedCreditCard;
 
@@ -30,7 +27,6 @@ class CardsCubit extends Cubit<CardsState> {
         cards: cards,
       ));
 
-      // Kartlar yüklendiğinde varsayılan kartları seç
       _selectDefaultCards(cards);
     } catch (e) {
       emit(state.copyWith(
@@ -40,30 +36,25 @@ class CardsCubit extends Cubit<CardsState> {
     }
   }
 
-  // Varsayılan kartları seçme işlemi
   void _selectDefaultCards(List<CardModel> cards) {
     if (cards.isEmpty) return;
 
-    // Varsayılan banka kartını seç
     final debitCards = cards.where((card) => card.cardType.cardType == CardTypeEnum.Debit).toList();
-    print("selecting debit card");
     if (debitCards.isNotEmpty && _selectedDebitCard == null) {
-      print("selected debit card");
       _selectedDebitCard = debitCards.first;
     }
 
-    // Varsayılan kredi kartını seç
     final creditCards = cards.where((card) => card.cardType.cardType == CardTypeEnum.Credit).toList();
     if (creditCards.isNotEmpty && _selectedCreditCard == null) {
       _selectedCreditCard = creditCards.first;
     }
   }
 
-  Future<void> createCard() async {
+  Future<void> createCard(int cardID, bool isDebit) async {
     emit(state.copyWith(status: CardsStatus.loading));
 
     try {
-      final newCard = await _cardService.createCard();
+      final newCard = await _cardService.createCard(cardID, isDebit);
       if (newCard != null) {
         final updatedCards = [...state.cards, newCard];
         emit(state.copyWith(
@@ -84,16 +75,22 @@ class CardsCubit extends Cubit<CardsState> {
     }
   }
 
-  // Kart seçme fonksiyonu
   void selectCard(CardModel card) {
-    // Kart tipine göre farklı değişkenlere ata
     if (card.cardType.cardType == CardTypeEnum.Debit) {
       _selectedDebitCard = card;
     } else if (card.cardType.cardType == CardTypeEnum.Credit) {
       _selectedCreditCard = card;
     }
 
-    // State güncellemesi yap (UI yenilensin diye)
     emit(state.copyWith(status: state.status));
+  }
+
+  Future<List<CompanyCardModel>> getCompanyCards(bool isDebitCard) async {
+    final response = await _cardService.getCompanyCards(isDebitCard ? CardTypeEnum.Debit : CardTypeEnum.Credit);
+    if (response != null) {
+      return response;
+    } else {
+      return [];
+    }
   }
 }

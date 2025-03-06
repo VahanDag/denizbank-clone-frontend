@@ -5,11 +5,12 @@ import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
 import 'package:denizbank_clone/cubit/cards/cards_cubit.dart';
 import 'package:denizbank_clone/cubit/transaction/transaction_cubit.dart';
-import 'package:denizbank_clone/cubit/transaction/transaction_cubit.dart';
 import 'package:denizbank_clone/cubit/user/user_cubit.dart';
+import 'package:denizbank_clone/models/transaction_model.dart';
 import 'package:denizbank_clone/models/widget_models.dart';
 import 'package:denizbank_clone/screens/accounts/select_bank_acounts.dart';
-import 'package:denizbank_clone/screens/login.dart';
+import 'package:denizbank_clone/screens/auth/login/login_screen.dart';
+import 'package:denizbank_clone/screens/transactions/send_money_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -44,16 +45,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           body: BlocBuilder<CardsCubit, CardsState>(
             builder: (context, cardState) {
               return HomeAndLoginTopArea(
+                isAuthenticated: true,
                 otherWidgets: const [],
                 height: 0.2,
                 tabWidth: 1,
                 tabs: [_tabTexts(AppStrings.accounts), _tabTexts(AppStrings.cards), _tabTexts(AppStrings.financialSummary)],
                 tabChildren: [
-                  // Tab 0: Hesaplar - Banka kartı bilgileri gösterilir
+                  // Tab 0: Hesaplar - Banka kartı bilgileri
                   Accounts(tabIndex: 0, tabController: _tabController),
-                  // Tab 1: Kartlar - Kredi kartı bilgileri gösterilir
+                  // Tab 1: Kartlar - Kredi kartı bilgileri
                   Accounts(tabIndex: 1, tabController: _tabController),
-                  // Tab 2: Finansal Özet - Banka kartı bilgileri gösterilir
+                  // Tab 2: Finansal Özet
                   Accounts(tabIndex: 2, tabController: _tabController),
                 ],
               );
@@ -102,6 +104,12 @@ class _AccountsState extends State<Accounts> {
     // Banka kartı için işlemler
     _debitCardActions = [
       ActionsModel(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SendMoneyScreen()),
+            );
+          },
           actionsName: AppStrings.sendMoney2line,
           actionsEnum: ActionsEnum.sendMoney,
           icon: Icon(
@@ -143,16 +151,14 @@ class _AccountsState extends State<Accounts> {
 
   @override
   Widget build(BuildContext context) {
-    var user = context.read<UserCubit>().state.user;
-    var cardsCubit = context.read<CardsCubit>();
+    var user = context.watch<UserCubit>().state.user;
+    var cardsCubit = context.watch<CardsCubit>();
 
     // Aktif tab kredi kartını mı (Cards tab) yoksa banka kartını mı (Accounts tab) göstermeli?
     bool isShowingCreditCard = widget.tabIndex == 1; // Tab index 1 = Kartlar tab'ı
 
-    // Tab'a göre kart seçimi
     final selectedCard = isShowingCreditCard ? cardsCubit.selectedCreditCard : cardsCubit.selectedDebitCard;
 
-    // Tab'a göre action'ları seç
     final actions = isShowingCreditCard ? _creditCardActions : _debitCardActions;
 
     return Column(
@@ -189,8 +195,7 @@ class _AccountsState extends State<Accounts> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      SelectBankAcounts(cards: user?.cards ?? [], selectedCard: selectedCard),
+                                  builder: (context) => SelectBankAcounts(selectedCard: selectedCard),
                                 ));
                           },
                           icon: const Icon(
@@ -237,25 +242,28 @@ class _AccountsState extends State<Accounts> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
                     actions.length,
-                    (index) => Column(
-                      children: [
-                        Container(
-                          height: 50,
-                          width: 50,
-                          alignment: Alignment.center,
-                          margin: PaddingConstant.paddingOnlyBottomLow,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade300.withOpacity(0.6),
-                            borderRadius: BorderRadiusConstant.borderRadius,
+                    (index) => GestureDetector(
+                      onTap: actions[index].onTap,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            alignment: Alignment.center,
+                            margin: PaddingConstant.paddingOnlyBottomLow,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade300.withOpacity(0.6),
+                              borderRadius: BorderRadiusConstant.borderRadius,
+                            ),
+                            child: actions[index].icon,
                           ),
-                          child: actions[index].icon,
-                        ),
-                        Text(
-                          actions[index].actionsName,
-                          textAlign: TextAlign.center,
-                          style: context.textTheme.titleSmall?.copyWith(color: Colors.white),
-                        ),
-                      ],
+                          Text(
+                            actions[index].actionsName,
+                            textAlign: TextAlign.center,
+                            style: context.textTheme.titleSmall?.copyWith(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -273,11 +281,12 @@ class _AccountsState extends State<Accounts> {
                               ),
                             );
                           } else if (state is TransactionLoaded) {
-                            final transactions = state.transactions;
+                            List<TransactionModel>? transactions = state.transactions ?? [];
+                            transactions.sort((a, b) => b.date!.compareTo(a.date ?? DateTime.now()));
                             return SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  final transaction = transactions![index];
+                                  final transaction = transactions[index];
                                   return ListTile(
                                     minVerticalPadding: 20,
                                     shape: const Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
@@ -290,12 +299,13 @@ class _AccountsState extends State<Accounts> {
                                       ],
                                     ),
                                     trailing: Text(
-                                      "${transaction.amount} TL",
-                                      style: context.textTheme.titleMedium,
+                                      "${transaction.fromName == user?.name ? '-' : '+'} ${transaction.amount} TL",
+                                      style: context.textTheme.titleMedium
+                                          ?.copyWith(color: transaction.fromName == user?.name ? Colors.red : Colors.green),
                                     ),
                                   );
                                 },
-                                childCount: transactions?.length ?? 0,
+                                childCount: transactions.length ?? 0,
                               ),
                             );
                           } else {

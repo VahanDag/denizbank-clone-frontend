@@ -33,23 +33,28 @@ class CardService {
     }
   }
 
-  Future<CardModel?> createCard() async {
+  Future<CardModel?> createCard(int cardID, bool isDebit) async {
     final token = await authService.getToken();
     if (token == null) return null;
 
     try {
+      print(cardID);
+      final requestBody = {
+        'cardType': isDebit ? CardTypeEnum.Debit.name : CardTypeEnum.Credit.name,
+        'denizBankCardId': cardID,
+      };
+      print('İstek gövdesi: $requestBody');
+
       final response = await http.post(
-        Uri.parse('$baseUrl/Cards/createCard'),
-        body: jsonEncode({
-          'cardType': 'Debit',
-        }),
+        Uri.parse('$baseUrl/createCardForUser'),
+        body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return CardModel.fromJson(data);
       } else {
-        print('Kart oluşturulamadı: ${response.statusCode}');
+        print('Kart oluşturulamadı: ${response.body}');
         return null;
       }
     } catch (e) {
@@ -63,7 +68,6 @@ class CardService {
     if (token == null) return null;
 
     try {
-      // URL'ye transactionType parametresi ekleyin (eğer belirtilmişse)
       String url = '$baseUrl/Transactions/getTransactions';
       if (transactionType != null) {
         url += '?transactionType=${transactionType.index}';
@@ -83,6 +87,64 @@ class CardService {
       }
     } catch (e) {
       print('İşlem bilgileri alınırken hata: $e');
+      return null;
+    }
+  }
+
+  Future<List<CompanyCardModel>?> getCompanyCards(CardTypeEnum? cardType) async {
+    final token = await authService.getToken();
+    if (token == null) return null;
+
+    try {
+      final uri = Uri.parse('$baseUrl/getDenizBankCards');
+
+      final uriWithParams = cardType != null ? uri.replace(queryParameters: {'cardType': cardType.name}) : uri;
+
+      final response = await http.get(
+        uriWithParams,
+        headers: {'accept': 'text/plain', 'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        return data.map((e) => CompanyCardModel.fromJson(e)).toList();
+      } else {
+        print('Kartlar Çekilemedi: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Kartlar çekilirken hata: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> transferMoney(String fromIBAN, String toIBAN, double amount, String? description) async {
+    final token = await authService.getToken();
+    if (token == null) return null;
+
+    try {
+      final requestBody = {
+        'fromIBAN': fromIBAN,
+        'toIBAN': toIBAN,
+        'amount': amount,
+        'description': description ?? '',
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/Transactions/transferMoney'),
+        body: jsonEncode(requestBody),
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data;
+      } else {
+        print('Para transferi başarısız: ${response.statusCode}, ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Para transferi sırasında hata: $e');
       return null;
     }
   }

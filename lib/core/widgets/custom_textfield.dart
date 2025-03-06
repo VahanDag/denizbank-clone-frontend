@@ -10,6 +10,7 @@ class CustomTextField extends StatefulWidget {
   const CustomTextField({
     super.key,
     this.margin,
+    this.prefix,
     required this.hintText,
     this.isPassword = false,
     this.suffix,
@@ -24,6 +25,7 @@ class CustomTextField extends StatefulWidget {
   final String hintText;
   final bool isPassword;
   final Widget? suffix;
+  final Widget? prefix;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final TextEditingController controller;
@@ -67,6 +69,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               obscureText: _isObsecure,
               keyboardType: widget.keyboardType,
               decoration: InputDecoration(
+                  prefixIcon: widget.prefix,
                   contentPadding: PaddingConstant.paddingOnlyTop,
                   hintText: widget.hintText,
                   hintStyle: const TextStyle(color: Colors.grey),

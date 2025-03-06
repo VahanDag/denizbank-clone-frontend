@@ -2,8 +2,9 @@ import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/screens/applications/applications.dart';
 import 'package:denizbank_clone/screens/fast/fast_transactions.dart';
 import 'package:denizbank_clone/screens/home.dart';
-import 'package:denizbank_clone/screens/login.dart';
+import 'package:denizbank_clone/screens/auth/login/login_screen.dart';
 import 'package:denizbank_clone/screens/menu/menu.dart';
+import 'package:denizbank_clone/screens/transactions/send_money_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,13 +23,12 @@ class RoutersCubit extends Cubit<RoutersState> {
     }
   }
 
-  // Initializing pages and titles
   void _initializePages() {
     pages = [
       isAuth ? const HomeScreen() : const FastTransactionsScreen(),
       const Applications(),
       MenuScreen(),
-      isAuth ? const Text(AppStrings.sendMoney) : const Text(AppStrings.nonOffice),
+      isAuth ? const SendMoneyScreen() : const Text(AppStrings.nonOffice),
       isAuth ? const Text(AppStrings.defray) : const Text(AppStrings.campaign),
       if (!isAuth) const LoginScreen()
     ];

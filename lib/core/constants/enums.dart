@@ -28,8 +28,12 @@ enum IconEnum {
   updateLimits,
   information,
   identity,
-  shake_hands
+  shake_hands,
+  ok,
+  assistan
 }
+
+enum CampaignBanners { money, interest, gift }
 
 enum CardTypeEnum { Credit, Debit }
 
@@ -42,3 +46,10 @@ enum TransactionTypeEnum {
 }
 
 enum TransactionStatus { initial, loading, loaded, error }
+
+enum SnackBarType {
+  success,
+  error,
+  warning,
+  info,
+}

@@ -10,17 +10,17 @@ import 'package:denizbank_clone/core/widgets/custom_appbar.dart';
 import 'package:denizbank_clone/cubit/cards/cards_cubit.dart';
 import 'package:denizbank_clone/models/card_model.dart';
 
+/// Kart seçimi
 class SelectBankAcounts extends StatelessWidget {
   const SelectBankAcounts({
     super.key,
-    required this.cards,
     this.selectedCard,
   });
-  final List<CardModel> cards;
   final CardModel? selectedCard;
 
   @override
   Widget build(BuildContext context) {
+    final cards = context.watch<CardsCubit>().state.cards;
     return Scaffold(
       appBar: CustomAppBar(title: appBarTitle("hesaplarım")),
       body: Center(

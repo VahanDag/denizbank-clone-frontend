@@ -1,10 +1,16 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
 import 'package:denizbank_clone/core/constants/app_strings.dart';
+import 'package:denizbank_clone/core/constants/enums.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
 import 'package:denizbank_clone/core/widgets/custom_appbar.dart';
+import 'package:denizbank_clone/cubit/cards/cards_cubit.dart';
+import 'package:denizbank_clone/models/card_model.dart';
 import 'package:denizbank_clone/models/widget_models.dart';
+import 'package:denizbank_clone/screens/cards/create_card_screen.dart';
 import 'package:denizbank_clone/screens/menu/widgets/menu_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class UserBankCards extends StatelessWidget {
@@ -12,6 +18,8 @@ class UserBankCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cards = context.watch<CardsCubit>().state.cards;
+
     return Scaffold(
       appBar: CustomAppBar(
         title: appBarTitle(AppStrings.cards),
@@ -26,46 +34,66 @@ class UserBankCards extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                        child: actionsCard(
-                            margin: PaddingConstant.paddingHorizontalLow,
-                            height: 75,
-                            context,
-                            ActionsModel(actionsName: "Kart Başvurusu", icon: Icon(MdiIcons.creditCardFast)))),
+                      child: actionsCard(
+                          onTap: () =>
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateCardScreen())),
+                          margin: PaddingConstant.paddingHorizontalLow,
+                          height: 75,
+                          context,
+                          ActionsModel(
+                              actionsName: "Kart\nBaşvurusu",
+                              icon: Icon(MdiIcons.creditCardOutline, color: AppColors.mainBlue))),
+                    ),
                     Expanded(
-                        child: actionsCard(
-                            margin: PaddingConstant.paddingHorizontalLow,
-                            height: 75,
-                            context,
-                            ActionsModel(actionsName: "Kart İşlemleri", icon: Icon(MdiIcons.creditCardFast))))
+                      child: actionsCard(
+                          margin: PaddingConstant.paddingHorizontalLow,
+                          height: 75,
+                          context,
+                          ActionsModel(
+                              actionsName: "Kart\nİşlemleri",
+                              icon: Icon(MdiIcons.creditCardMinusOutline, color: AppColors.mainBlue))),
+                    )
                   ],
                 ).margin(PaddingConstant.paddingVerticalHigh),
-                Text(
-                  "Kredi Kartlarım (2)",
-                  style: context.textTheme.titleMedium?.copyWith(color: Colors.blueGrey),
-                ).margin(PaddingConstant.paddingVerticalHigh),
-                _userDebitCreditCard(
-                    context: context,
-                    cardName: "DenizBank Black MasterCard",
-                    image: "assets/images/black_card.png",
-                    subTitle: [
-                      {"title": "Kullanılabilir Limit", "value": "1234.56 TL"},
-                      {"title": "Ekstreden Kalan Borç", "value": "1234.56 TL"},
-                    ]),
-                _userDebitCreditCard(
-                    context: context,
-                    cardName: "Anında Sanal Kart",
-                    image: "assets/images/black_card.png",
-                    subTitle: [
-                      {"title": "Kullanılabilir Limit", "value": "1234.56 TL"},
-                      {"title": "Son Kullanma Tarihi", "value": "11/26"},
-                      {"title": "Güvenlik Kodu(CVV)", "value": "554"},
-                    ])
+                crateCardsWithCardType(cardType: CardTypeEnum.Credit, cards: cards, context: context),
+                crateCardsWithCardType(cardType: CardTypeEnum.Debit, cards: cards, context: context),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget crateCardsWithCardType(
+      {required BuildContext context, required CardTypeEnum cardType, required List<CardModel> cards}) {
+    final cardsWithType = cards.where((card) => card.cardType.cardType == cardType).toList();
+    final bool isCredit = cardType == CardTypeEnum.Credit;
+    return cardsWithType.isEmpty
+        ? const SizedBox.shrink()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${isCredit ? 'Kredi' : 'Banka'} Kartlarım (${cardsWithType.length})",
+                style: context.textTheme.titleMedium?.copyWith(color: Colors.blueGrey),
+              ).margin(PaddingConstant.paddingVerticalHigh),
+              ...List.generate(
+                  cardsWithType.length,
+                  (index) => _userDebitCreditCard(
+                          context: context,
+                          cardName: cardsWithType[index].cardType.cardName,
+                          image: cardsWithType[index].cardType.imageURI,
+                          subTitle: [
+                            {
+                              "title": isCredit ? "Kullanılabilir Limit" : "Bakiye",
+                              "value": "${isCredit ? cardsWithType[index].balanceLimit : cardsWithType[index].balance} TL"
+                            },
+                            {"title": "Son Kullanım Tarihi", "value": cardsWithType[index].expirationDate},
+                            if (isCredit) {"title": "Kalan Borç", "value": "${cardsWithType[index].debt} TL"},
+                          ]))
+            ],
+          );
   }
 
   Card _userDebitCreditCard(
@@ -83,7 +111,7 @@ class UserBankCards extends StatelessWidget {
           children: [
             Row(
               children: [
-                Image.asset(height: 75, fit: BoxFit.cover, image),
+                Image.network(height: 75, fit: BoxFit.cover, image),
                 Flexible(
                   child: ListTile(
                     title: Text(

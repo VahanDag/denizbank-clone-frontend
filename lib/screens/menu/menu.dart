@@ -1,3 +1,4 @@
+import 'package:denizbank_clone/core/constants/app_colors.dart';
 import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
@@ -30,13 +31,19 @@ class MenuScreen extends StatelessWidget {
   ];
 
   static final List<ActionsModel> _fastTransactions = [
-    ActionsModel(actionsName: "Başka Hesaba \nPara Gönder", icon: Icon(size: 26, MdiIcons.cubeSend)),
-    ActionsModel(actionsName: AppStrings.payBill2Line, icon: Icon(size: 26, MdiIcons.receiptTextOutline)),
-    ActionsModel(actionsName: "Kolay Adres \nİşlemleri", icon: Icon(size: 26, MdiIcons.textBoxCheckOutline)),
-    ActionsModel(actionsName: "Kart \nBorcu", icon: Icon(size: 26, MdiIcons.receiptTextOutline)),
-    ActionsModel(actionsName: "QR ile Para \nÇek / Yatır", icon: Icon(size: 26, MdiIcons.qrcode)),
-    ActionsModel(actionsName: "Şans \nOyunları", icon: const Icon(size: 26, Icons.gamepad_outlined)),
-    ActionsModel(actionsName: "Kredi \nBaşvurusu", icon: Icon(size: 26, MdiIcons.handCoinOutline)),
+    ActionsModel(
+        actionsName: "Başka Hesaba \nPara Gönder", icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.cubeSend)),
+    ActionsModel(
+        actionsName: AppStrings.payBill2Line, icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.receiptTextOutline)),
+    ActionsModel(
+        actionsName: "Kolay Adres \nİşlemleri",
+        icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.textBoxCheckOutline)),
+    ActionsModel(actionsName: "Kart \nBorcu", icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.receiptTextOutline)),
+    ActionsModel(actionsName: "QR ile Para \nÇek / Yatır", icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.qrcode)),
+    ActionsModel(
+        actionsName: "Şans \nOyunları", icon: const Icon(color: AppColors.mainBlue, size: 26, Icons.gamepad_outlined)),
+    ActionsModel(
+        actionsName: "Kredi \nBaşvurusu", icon: Icon(color: AppColors.mainBlue, size: 26, MdiIcons.handCoinOutline)),
   ];
   @override
   Widget build(BuildContext context) {
@@ -64,10 +71,10 @@ class MenuScreen extends StatelessWidget {
             height: 50,
             child: SearchBar(
               hintText: "Ara",
-              leading: Icon(
+              leading: const Icon(
                 Icons.search,
                 size: 25,
-                color: Colors.blue.shade400,
+                color: AppColors.mainBlue,
               ),
               hintStyle: const WidgetStatePropertyAll(TextStyle(color: Colors.grey)),
               shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadiusConstant.borderRadius)),

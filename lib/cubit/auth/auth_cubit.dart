@@ -26,19 +26,17 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> checkAuthStatus() async {
     emit(const AuthAppLoading());
+    await Future.delayed(const Duration(seconds: 2));
 
     try {
       final hasValidToken = await _authService.hasValidToken();
       if (hasValidToken) {
-        // Token geçerli ise kullanıcı bilgilerini de yükle
         await _userCubit.loadUser();
 
-        // Kartları yükle
         if (_cardsCubit != null) {
           await _cardsCubit.loadCards();
         }
 
-        // İşlemleri yükle (isteğe bağlı)
         if (_transactionCubit != null) {
           await _transactionCubit.loadTransactions();
         }
@@ -57,16 +55,13 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final success = await _authService.login(tcNo: tcNo, password: password);
-      print("is success: $success");
       if (success) {
         await _userCubit.loadUser();
 
-        // Login olunca kartları da yükle
         if (_cardsCubit != null) {
           await _cardsCubit.loadCards();
         }
 
-        // İşlemleri yükle (isteğe bağlı)
         if (_transactionCubit != null) {
           await _transactionCubit.loadTransactions();
         }

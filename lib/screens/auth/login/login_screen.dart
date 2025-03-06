@@ -1,11 +1,11 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:denizbank_clone/core/constants/app_colors.dart';
+import 'package:denizbank_clone/core/constants/enums.dart';
 import 'package:denizbank_clone/core/constants/validators.dart';
+import 'package:denizbank_clone/core/widgets/custom_snackbar.dart';
 import 'package:denizbank_clone/cubit/auth/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:denizbank_clone/core/constants/app_strings.dart';
 import 'package:denizbank_clone/core/constants/extensions.dart';
 import 'package:denizbank_clone/core/constants/paddings_borders.dart';
@@ -47,27 +47,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 itemCount: 6,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    margin: PaddingConstant.paddingHorizontalLow,
-                    width: 100,
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 75,
-                          width: 75,
-                          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 2)),
-                          child: Image.asset("assets/images/denizbank.png"),
-                        ),
-                        Text(
-                          "Yenilenen MobilDeniz ile artık çok kolay",
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          style: context.textTheme.labelSmall,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      ],
-                    ),
-                  );
+                  return _campaignsStories(
+                      context: context, image: CampaignBanners.values[index % CampaignBanners.values.length].iconName);
                 },
               ),
             ),
@@ -86,10 +67,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       alignment: Alignment.center,
                       decoration: BoxDecoration(borderRadius: BorderRadiusConstant.borderRadius, color: Colors.white),
                       child: ListTile(
-                        leading: const Icon(
-                          Icons.trending_up,
-                          size: 40,
-                        ),
+                        leading: const Icon(Icons.trending_up, size: 40, color: AppColors.mainBlue),
                         title: Text(
                           "Piyasalar",
                           style: context.textTheme.titleMedium,
@@ -106,6 +84,32 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       },
     );
   }
+
+  Container _campaignsStories({required BuildContext context, required String image}) {
+    return Container(
+      margin: PaddingConstant.paddingHorizontalLow,
+      width: 100,
+      child: Column(
+        children: [
+          Container(
+            height: 75,
+            width: 75,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.red, width: 2),
+                image: DecorationImage(image: AssetImage(image))),
+          ),
+          Text(
+            "Yenilenen MobilDeniz ile artık çok kolay",
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            style: context.textTheme.labelSmall,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      ),
+    );
+  }
 }
 
 class HomeAndLoginTopArea extends StatefulWidget {
@@ -115,12 +119,14 @@ class HomeAndLoginTopArea extends StatefulWidget {
       required List<Widget> tabChildren,
       required this.otherWidgets,
       required this.tabWidth,
+      this.isAuthenticated = false,
       required this.height})
       : _tabs = tabs,
         _tabChildren = tabChildren;
 
   final List<Widget> _tabs;
   final List<Widget> _tabChildren;
+  final bool isAuthenticated;
 
   /// width should be between 0.0 and 1.0
   final double tabWidth;
@@ -162,38 +168,40 @@ class _HomeAndLoginTopAreaState extends State<HomeAndLoginTopArea> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: const Color(0xff367cde),
-      child: Column(
-        children: [
-          Container(
-            color: AppColors.mainBlue,
-            height: context.deviceHeight * widget.height,
-            width: double.infinity,
-            child: Column(
-              children: [
-                Padding(
-                  padding: PaddingConstant.paddingAllHigh,
-                  child: Row(
-                    children: [
-                      Image.asset(width: 150, "assets/images/denizbank.png"),
-                      const Spacer(),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.circle_outlined, color: Colors.white)),
-                      IconButton(
-                          onPressed: () {}, icon: const Icon(Icons.notifications_active_outlined, color: Colors.white)),
-                    ],
-                  ),
+    return Column(
+      children: [
+        Container(
+          color: AppColors.mainBlue,
+          height: context.deviceHeight * widget.height,
+          width: double.infinity,
+          child: Column(
+            children: [
+              Padding(
+                padding: PaddingConstant.paddingAllHigh,
+                child: Row(
+                  children: [
+                    if (widget.isAuthenticated)
+                      GestureDetector(
+                          onTap: () async => await context.read<AuthCubit>().logout(),
+                          child: const Icon(Icons.logout_rounded, color: Colors.white)),
+                    Image.asset(width: 150, "assets/images/denizbank.png"),
+                    const Spacer(),
+                    IconButton(
+                        onPressed: () {},
+                        icon: Image.asset(IconEnum.assistan.iconName, height: 24, width: 24, color: Colors.white)),
+                    const Icon(Icons.notifications_active_outlined, color: Colors.white)
+                  ],
                 ),
-                Container(
-                    margin: PaddingConstant.paddingOnlyBottomHigh,
-                    width: context.deviceWidth * widget.tabWidth,
-                    child: _tabbar),
-              ],
-            ),
+              ),
+              Container(
+                  margin: PaddingConstant.paddingOnlyBottomHigh,
+                  width: context.deviceWidth * widget.tabWidth,
+                  child: _tabbar),
+            ],
           ),
-          Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
-        ],
-      ),
+        ),
+        Expanded(child: TabBarView(controller: _tabController, children: widget._tabChildren))
+      ],
     );
   }
 }
@@ -208,6 +216,7 @@ class IndividualUsers extends StatelessWidget {
       color: AppColors.mainBlue,
       child: Column(
         children: [
+          const Spacer(),
           userCubit.state.userLoggedBefore
               ? _userLoggedOnce()
               : Text(
@@ -338,12 +347,14 @@ class _LoginSubWidgetForFirstLogin extends StatelessWidget {
           CustomButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  await context.read<AuthCubit>().login(
-                      tcNo: tcNoController.text.trimToTextLower.toInt,
-                      password: passwordController.text.trimToTextLower.toInt);
-                  print("valid");
+                  await context
+                      .read<AuthCubit>()
+                      .login(
+                          tcNo: tcNoController.text.trimToTextLower.toInt,
+                          password: passwordController.text.trimToTextLower.toInt)
+                      .withLoading(context);
                 } else {
-                  print("not valid");
+                  AppSnackBar.showError(context: context, message: "Lütfen formu doğru bilgilerle doldur.");
                 }
               },
               text: "Giriş yapın",
