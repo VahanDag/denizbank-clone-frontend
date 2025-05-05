@@ -1,4 +1,4 @@
-# denizbank_clone
+# Banking app
 
 ## Developing
 
